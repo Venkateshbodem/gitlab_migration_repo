@@ -21,7 +21,7 @@ namespace gui
 	//! Node for gui tree view
 	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
 	\li EGET_TREEVIEW_NODE_EXPAND
-	\li EGET_TREEVIEW_NODE_COLLAPS
+	\li EGET_TREEVIEW_NODE_COLLAPSE
 	\li EGET_TREEVIEW_NODE_DESELECT
 	\li EGET_TREEVIEW_NODE_SELECT
 	*/

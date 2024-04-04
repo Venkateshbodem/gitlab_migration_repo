@@ -456,10 +456,11 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 			core::rect<s32>(	RelativeRect.getWidth() - ScrollBarSize,
 								0,
 								RelativeRect.getWidth(),
-								RelativeRect.getHeight() - ScrollBarSize
+								RelativeRect.getHeight()  - (scrollBarHorizontal ? ScrollBarSize : 0)
 			), !clip );
 		ScrollBarV->drop();
 
+		ScrollBarV->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 		ScrollBarV->setSubElement(true);
 		ScrollBarV->setPos( 0 );
 		ScrollBarV->grab();
@@ -470,11 +471,12 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 		ScrollBarH = new CGUIScrollBar( true, Environment, this, -1,
 			core::rect<s32>(	0,
 								RelativeRect.getHeight() - ScrollBarSize,
-								RelativeRect.getWidth() - ScrollBarSize,
+								RelativeRect.getWidth() - (scrollBarVertical ? ScrollBarSize : 0),
 								RelativeRect.getHeight()
 			), !clip );
 		ScrollBarH->drop();
 
+		ScrollBarH->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT);
 		ScrollBarH->setSubElement(true);
 		ScrollBarH->setPos( 0 );
 		ScrollBarH->grab();
@@ -635,7 +637,6 @@ void CGUITreeView::recalculateItemHeight()
 		}
 		ScrollBarH->setMax( core::max_( 0, diffVert ) );
 	}
-
 }
 
 void CGUITreeView::updateScrollBarSize(s32 size)
@@ -647,14 +648,14 @@ void CGUITreeView::updateScrollBarSize(s32 size)
 		if ( ScrollBarV )
 		{
 			core::recti r(RelativeRect.getWidth() - ScrollBarSize, 0,
-			              RelativeRect.getWidth(), RelativeRect.getHeight() - ScrollBarSize);
+			              RelativeRect.getWidth(), RelativeRect.getHeight() - (ScrollBarH ? ScrollBarSize : 0));
 			ScrollBarV->setRelativePosition(r);
 		}
 
 		if ( ScrollBarH ) 
 		{
 			core::recti r(0, RelativeRect.getHeight() - ScrollBarSize,
-			              RelativeRect.getWidth() - ScrollBarSize, RelativeRect.getHeight());
+			              RelativeRect.getWidth() - (ScrollBarV ? ScrollBarSize : 0), RelativeRect.getHeight());
 			ScrollBarH->setRelativePosition(r);
 		}
 	}
@@ -798,14 +799,14 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 	{
 		hitNode->setExpanded( !hitNode->getExpanded() );
 
-		// post expand/collaps news
+		// post expand/collapse news
 		if( hitNode->getExpanded() )
 		{
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_EXPAND;
 		}
 		else
 		{
-			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_COLLAPS;
+			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_COLLAPSE;
 		}
 		LastEventNode = hitNode;
 		Parent->OnEvent( event );
@@ -1035,7 +1036,7 @@ void CGUITreeView::draw()
 				textRect.UpperLeftCorner.X -= iconWidth;
 			}
 
-			// draw the lines if neccessary
+			// draw the lines if necessary
 			if( LinesVisible )
 			{
 				core::rect<s32> rc;
