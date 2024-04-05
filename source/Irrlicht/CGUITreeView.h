@@ -180,7 +180,7 @@ namespace gui
 		//! Return the last child note from this node.
 		virtual IGUITreeViewNode* getLastChild() const IRR_OVERRIDE;
 
-		//! Returns the preverse sibling node from this node.
+		//! Returns the previous sibling node from this node.
 		virtual IGUITreeViewNode* getPrevSibling() const IRR_OVERRIDE;
 
 		//! Returns the next sibling node from this node.
@@ -317,7 +317,7 @@ namespace gui
 		virtual IGUIScrollBar* getHorizontalScrollBar() const IRR_OVERRIDE;
 
 	private:
-		//! calculates the heigth of an node and of all visible nodes.
+		//! calculates the height of an node and of all visible nodes.
 		void recalculateItemHeight();
 
 		//! Resize scrollbars when their size in the skin has changed

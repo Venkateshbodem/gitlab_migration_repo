@@ -935,10 +935,15 @@ void CGUITreeView::draw()
 				driver->draw2DRectangle( skin->getColor( EGDC_HIGH_LIGHT ), copyFrameRect, &clientClip );
 			}
 
+			irr::video::SColor textCol = isEnabled() ? 
+											( (node == Selected) ? skin->getColor(EGDC_HIGH_LIGHT_TEXT) : skin->getColor(EGDC_BUTTON_TEXT) )
+											: skin->getColor(EGDC_GRAY_TEXT);
+
 			if( node->hasChildren() )
 			{
 				core::rect<s32> rc;
 				core::rect<s32> expanderRect;
+				irr::video::SColor boxCol = skin->getColor( EGDC_3D_DARK_SHADOW );
 
 				expanderRect.UpperLeftCorner.X = frameRect.UpperLeftCorner.X - IndentWidth + 2;
 				expanderRect.UpperLeftCorner.Y = frameRect.UpperLeftCorner.Y + ( ( frameRect.getHeight() - ( IndentWidth - 4 ) ) >> 1 );
@@ -950,35 +955,35 @@ void CGUITreeView::draw()
 				rc.UpperLeftCorner.Y = expanderRect.UpperLeftCorner.Y;
 				rc.LowerRightCorner.X = expanderRect.LowerRightCorner.X;
 				rc.LowerRightCorner.Y = rc.UpperLeftCorner.Y + 1;
-				driver->draw2DRectangle( skin->getColor( EGDC_3D_DARK_SHADOW ), rc, clipRect );
+				driver->draw2DRectangle( boxCol, rc, clipRect );
 
 				// box left line
 				rc.UpperLeftCorner.X = expanderRect.UpperLeftCorner.X;
 				rc.UpperLeftCorner.Y = expanderRect.UpperLeftCorner.Y;
 				rc.LowerRightCorner.X = rc.UpperLeftCorner.X + 1;
 				rc.LowerRightCorner.Y = expanderRect.LowerRightCorner.Y;
-				driver->draw2DRectangle( skin->getColor( EGDC_3D_DARK_SHADOW ), rc, clipRect );
+				driver->draw2DRectangle( boxCol, rc, clipRect );
 
 				// box right line
 				rc.UpperLeftCorner.X = expanderRect.LowerRightCorner.X - 1;
 				rc.UpperLeftCorner.Y = expanderRect.UpperLeftCorner.Y;
 				rc.LowerRightCorner.X = rc.UpperLeftCorner.X + 1;
 				rc.LowerRightCorner.Y = expanderRect.LowerRightCorner.Y;
-				driver->draw2DRectangle( skin->getColor( EGDC_3D_DARK_SHADOW ), rc, clipRect );
+				driver->draw2DRectangle( boxCol, rc, clipRect );
 
 				// box bottom line
 				rc.UpperLeftCorner.X = expanderRect.UpperLeftCorner.X;
 				rc.UpperLeftCorner.Y = expanderRect.LowerRightCorner.Y - 1;
 				rc.LowerRightCorner.X = expanderRect.LowerRightCorner.X;
 				rc.LowerRightCorner.Y = rc.UpperLeftCorner.Y + 1;
-				driver->draw2DRectangle( skin->getColor( EGDC_3D_DARK_SHADOW ), rc, clipRect );
+				driver->draw2DRectangle( boxCol, rc, clipRect );
 
 				// horizontal '-' line
 				rc.UpperLeftCorner.X = expanderRect.UpperLeftCorner.X + 2;
 				rc.UpperLeftCorner.Y = expanderRect.UpperLeftCorner.Y + ( expanderRect.getHeight() >> 1 );
 				rc.LowerRightCorner.X = rc.UpperLeftCorner.X + expanderRect.getWidth() - 4;
 				rc.LowerRightCorner.Y = rc.UpperLeftCorner.Y + 1;
-				driver->draw2DRectangle( skin->getColor( EGDC_BUTTON_TEXT ), rc, clipRect );
+				driver->draw2DRectangle( textCol, rc, clipRect );
 
 				if( !node->getExpanded() )
 				{
@@ -987,7 +992,7 @@ void CGUITreeView::draw()
 					rc.UpperLeftCorner.Y = expanderRect.UpperLeftCorner.Y + 2;
 					rc.LowerRightCorner.X = rc.UpperLeftCorner.X + 1;
 					rc.LowerRightCorner.Y = rc.UpperLeftCorner.Y + expanderRect.getHeight() - 4;
-					driver->draw2DRectangle( skin->getColor( EGDC_BUTTON_TEXT ), rc, clipRect );
+					driver->draw2DRectangle( textCol, rc, clipRect );
 				}
 			}
 
@@ -995,10 +1000,6 @@ void CGUITreeView::draw()
 
 			if( Font )
 			{
-				EGUI_DEFAULT_COLOR textCol = EGDC_GRAY_TEXT;
-				if ( isEnabled() )
-					textCol = ( node == Selected ) ? EGDC_HIGH_LIGHT_TEXT : EGDC_BUTTON_TEXT;
-
 				s32 iconWidth = 0;
 				for( s32 n = 0; n < 2; ++n )
 				{
@@ -1025,13 +1026,13 @@ void CGUITreeView::draw()
 						&& ( ( ImageLeftOfIcon && n == 1 )
 						|| ( !ImageLeftOfIcon && n == 0 ) ) )
 					{
-						IconFont->draw( node->getIcon(), textRect, skin->getColor(textCol), false, true, &clientClip );
+						IconFont->draw( node->getIcon(), textRect, textCol, false, true, &clientClip );
 						iconWidth += IconFont->getDimension( node->getIcon() ).Width + 3;
 						textRect.UpperLeftCorner.X += IconFont->getDimension( node->getIcon() ).Width + 3;
 					}
 				}
 
-				Font->draw( node->getText(), textRect, skin->getColor(textCol), false, true, &clientClip );
+				Font->draw( node->getText(), textRect, textCol, false, true, &clientClip );
 
 				textRect.UpperLeftCorner.X -= iconWidth;
 			}
