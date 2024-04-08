@@ -1,6 +1,7 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- Bugfix: CGUITreeView no longer dropping EGET_TREEVIEW_NODE_SELECT events when moving mouse while clicking
 - CGUITreeView now shows expand icon (+/-) for sub-nodes with correct text-color
 - Bugfix: CGUITreeView now aligns scrollbars correct so they work on resize
 - obj/mtl loader no longer messes up bump textures when the name starts with a number

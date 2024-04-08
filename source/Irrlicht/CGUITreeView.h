@@ -255,7 +255,11 @@ namespace gui
 
 		//! returns the selected node of the tree or 0 if none is selected
 		virtual IGUITreeViewNode* getSelected() const IRR_OVERRIDE
-		{ return Selected; }
+		{ 
+			if ( HoverSelected )
+				return HoverSelected;
+			return Selected; 
+		}
 
 		//! returns true if the tree lines are visible
 		virtual bool getLinesVisible() const IRR_OVERRIDE
@@ -328,6 +332,7 @@ namespace gui
 
 		CGUITreeViewNode*	Root;
 		IGUITreeViewNode*	Selected;
+		IGUITreeViewNode*	HoverSelected;	// When we're in the middle of changing selection while mouse is pressed
 		s32			ItemHeight;
 		s32			IndentWidth;
 		s32			TotalItemHeight;

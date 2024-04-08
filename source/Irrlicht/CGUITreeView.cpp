@@ -30,11 +30,7 @@ CGUITreeViewNode::CGUITreeViewNode( CGUITreeView* owner, CGUITreeViewNode* paren
 
 CGUITreeViewNode::~CGUITreeViewNode()
 {
-	if( Owner && this == Owner->getSelected() )
-	{
-		setSelected( false );
-	}
-
+	setSelected( false );
 	clearChildren();
 
 	if( Data2 )
@@ -65,10 +61,9 @@ void CGUITreeViewNode::setIcon( const wchar_t* icon )
 
 void CGUITreeViewNode::clearChildren()
 {
-	core::list<CGUITreeViewNode*>::Iterator	it;
-
-	for( it = Children.begin(); it != Children.end(); it++ )
+	for(core::list<CGUITreeViewNode*>::Iterator it = Children.begin(); it != Children.end(); it++ )
 	{
+		( *it )->setSelected(false);
 		( *it )->drop();
 	}
 	Children.clear();
@@ -287,20 +282,17 @@ IGUITreeViewNode* CGUITreeViewNode::getNextVisible() const
 
 bool CGUITreeViewNode::deleteChild( IGUITreeViewNode* child )
 {
-	core::list<CGUITreeViewNode*>::Iterator	itChild;
-	bool	deleted = false;
-
-	for( itChild = Children.begin(); itChild != Children.end(); itChild++ )
+	for(core::list<CGUITreeViewNode*>::Iterator itChild = Children.begin(); itChild != Children.end(); ++itChild )
 	{
 		if( child == *itChild )
 		{
+			child->setSelected(false);
 			child->drop();
 			Children.erase( itChild );
-			deleted = true;
-			break;
+			return true;
 		}
 	}
-	return deleted;
+	return false;
 }
 
 bool CGUITreeViewNode::moveChildUp( IGUITreeViewNode* child )
@@ -357,6 +349,14 @@ bool CGUITreeViewNode::moveChildDown( IGUITreeViewNode* child )
 void CGUITreeViewNode::setExpanded( bool expanded )
 {
 	Expanded = expanded;
+	if ( !expanded && Owner )
+	{
+		// Checking in case we did hide a child here
+		if ( Owner->Selected && !Owner->Selected->isVisible() )
+			Owner->Selected = 0;
+		if ( Owner->HoverSelected && !Owner->HoverSelected->isVisible() )
+			Owner->HoverSelected = 0;
+	}
 }
 
 void CGUITreeViewNode::setSelected( bool selected )
@@ -374,19 +374,14 @@ void CGUITreeViewNode::setSelected( bool selected )
 				Owner->Selected = 0;
 			}
 		}
+		if ( Owner->HoverSelected == this )
+			Owner->HoverSelected = 0;
 	}
 }
 
 bool CGUITreeViewNode::getSelected() const
 {
-	if( Owner )
-	{
-		return Owner->Selected == (IGUITreeViewNode*)this;
-	}
-	else
-	{
-		return false;
-	}
+	return Owner && Owner->getSelected() == this;
 }
 
 bool CGUITreeViewNode::isRoot() const
@@ -424,7 +419,7 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 	s32 id, core::rect<s32> rectangle, bool clip,
 	bool drawBack,bool scrollBarVertical, bool scrollBarHorizontal)
 	: IGUITreeView( environment, parent, id, rectangle ),
-	Root(0), Selected(0),
+	Root(0), Selected(0), HoverSelected(0),
 	ItemHeight( 0 ),
 	IndentWidth( 0 ),
 	TotalItemHeight( 0 ),
@@ -753,9 +748,9 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 */
 void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 {
-	IGUITreeViewNode*		oldSelected = Selected;
-	s32						selIdx=-1;
-	SEvent					event;
+	IGUITreeViewNode* oldSelected = Selected;	// Careful - this can change also through hiding expansion in here
+	s32	selIdx=-1;
+	SEvent event;
 
 	event.EventType			= EET_GUI_EVENT;
 	event.GUIEvent.Caller	= this;
@@ -787,9 +782,16 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 
 	s32 scrollBarHPos = ScrollBarH ? ScrollBarH->getPos() : 0;
 	xpos += scrollBarHPos; // correction for shift
+
 	if( hitNode && xpos > hitNode->getLevel() * IndentWidth )
 	{
-		Selected = hitNode;
+		if ( onlyHover )
+			HoverSelected = hitNode;
+		else
+		{
+			Selected = hitNode;
+			HoverSelected = 0;
+		}
 	}
 
 	if( hitNode && !onlyHover
@@ -813,17 +815,14 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 		LastEventNode = 0;
 	}
 
-	if( Selected && !Selected->isVisible() )
-	{
-		Selected = 0;
-	}
-
 	// post selection news
 
-	if( Parent && !onlyHover && Selected != oldSelected )
+	if( Parent && Selected != oldSelected )
 	{
 		if( oldSelected )
 		{
+			// Note: It might also be lost when deleting nodes or disabling expansion without click 
+			//       Not sure yet if/how to handle those. Or maybe this event isn't even necessary
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_DESELECT;
 			LastEventNode = oldSelected;
 			Parent->OnEvent( event );
@@ -918,6 +917,7 @@ void CGUITreeView::draw()
 	IGUITreeViewNode* node = Root->getFirstChild();
 	while( node )
 	{
+		const bool isSelected = node == getSelected();
 		frameRect.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X + 1 + node->getLevel() * IndentWidth;
 		if ( ScrollBarH )
 		{
@@ -927,7 +927,7 @@ void CGUITreeView::draw()
 		if( frameRect.LowerRightCorner.Y >= AbsoluteRect.UpperLeftCorner.Y
 			&& frameRect.UpperLeftCorner.Y <= AbsoluteRect.LowerRightCorner.Y )
 		{
-			if( node == Selected )
+			if( isSelected )
 			{
 				// selection box beginning from far left
 				core::rect<s32> copyFrameRect( frameRect ); // local copy to keep original untouched
@@ -936,7 +936,7 @@ void CGUITreeView::draw()
 			}
 
 			irr::video::SColor textCol = isEnabled() ? 
-											( (node == Selected) ? skin->getColor(EGDC_HIGH_LIGHT_TEXT) : skin->getColor(EGDC_BUTTON_TEXT) )
+											( isSelected ? skin->getColor(EGDC_HIGH_LIGHT_TEXT) : skin->getColor(EGDC_BUTTON_TEXT) )
 											: skin->getColor(EGDC_GRAY_TEXT);
 
 			if( node->hasChildren() )
@@ -1009,7 +1009,7 @@ void CGUITreeView::draw()
 						|| ( !ImageLeftOfIcon && n == 1 ) ) )
 					{
 						index = node->getSelectedImageIndex();
-						if( node != Selected || index < 0 )
+						if( !isSelected || index < 0 )
 						{
 							index = node->getImageIndex();
 						}
