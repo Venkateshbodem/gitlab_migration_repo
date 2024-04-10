@@ -211,56 +211,51 @@ IGUITreeViewNode* CGUITreeViewNode::getLastChild() const
 
 IGUITreeViewNode* CGUITreeViewNode::getPrevSibling() const
 {
-	core::list<CGUITreeViewNode*>::Iterator	itThis;
-	core::list<CGUITreeViewNode*>::Iterator	itOther;
-	CGUITreeViewNode*									other = 0;
-
 	if( Parent )
 	{
-		for( itThis = Parent->Children.begin(); itThis != Parent->Children.end(); itThis++ )
+		core::list<CGUITreeViewNode*>::Iterator	itPrev;
+		for( core::list<CGUITreeViewNode*>::Iterator it = Parent->Children.begin(); it != Parent->Children.end(); ++it )
 		{
-			if( this == *itThis )
+			if( this == *it )
 			{
-				if( itThis != Parent->Children.begin() )
+				if( it != Parent->Children.begin() )
 				{
-					other = *itOther;
+					return *itPrev;
 				}
 				break;
 			}
-			itOther = itThis;
+			itPrev = it;
 		}
 	}
-	return other;
+	return 0;
 }
 
 IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
 {
-	core::list<CGUITreeViewNode*>::Iterator	itThis;
-	CGUITreeViewNode*									other = 0;
-
 	if( Parent )
 	{
-		for( itThis = Parent->Children.begin(); itThis != Parent->Children.end(); itThis++ )
+		// Note: Slow. We could add a function to core::list that gives back iterator from element pointer (that's possible if you know the pointer is a list element)
+		for( core::list<CGUITreeViewNode*>::Iterator it = Parent->Children.begin(); it != Parent->Children.end(); ++it )
 		{
-			if( this == *itThis )
+			if( this == *it )
 			{
-				if( itThis != Parent->Children.getLast() )
+				if( it != Parent->Children.getLast() )
 				{
-					other = *( ++itThis );
+					return *( ++it );
 				}
 				break;
 			}
 		}
 	}
-	return other;
+	return 0;
 }
 
-IGUITreeViewNode* CGUITreeViewNode::getNextVisible() const
+IGUITreeViewNode* CGUITreeViewNode::getNextNode(bool onlyVisible) const
 {
 	IGUITreeViewNode*	next = 0;
 	const IGUITreeViewNode*	node = this;
 
-	if( node->getExpanded() && node->hasChildren() )
+	if( (!onlyVisible || node->getExpanded()) && node->hasChildren() )
 	{
 		next = node->getFirstChild();
 	}
@@ -621,6 +616,7 @@ void CGUITreeView::recalculateItemHeight()
 			diffHor += ScrollBarH->getAbsolutePosition().getHeight();
 		}
 		ScrollBarV->setMax( core::max_( 0, diffHor) );
+		ScrollBarV->setSmallStep( ItemHeight );
 	}
 
 	if ( ScrollBarH )
@@ -631,6 +627,7 @@ void CGUITreeView::recalculateItemHeight()
 			// TODO: not sure yet if it needs handling
 		}
 		ScrollBarH->setMax( core::max_( 0, diffVert ) );
+		ScrollBarH->setSmallStep( ItemHeight );
 	}
 }
 
@@ -691,7 +688,10 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 				{
 				case EMIE_MOUSE_WHEEL:
 					if ( ScrollBarV )
-						ScrollBarV->setPos( ScrollBarV->getPos() + (event.MouseInput.Wheel < 0 ? -1 : 1) * -10 );
+					{
+						const s32 scrollStep = ItemHeight*3;	// 3 lines seems to be usual step-size (at least on Windows).
+						ScrollBarV->setPos( ScrollBarV->getPos() + (event.MouseInput.Wheel < 0 ? 1 : -1) * scrollStep );
+					}
 					return true;
 					break;
 
@@ -733,6 +733,40 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 
 				default:
 					break;
+				}
+			}
+			break;
+		case EET_KEY_INPUT_EVENT:
+			if (event.KeyInput.PressedDown)
+			{
+				// Have to be careful here to only send event for keys which are absorbed by scrollbars
+				// otherwise we'll get into endless loops as event would be send back to parent
+				if ( ScrollBarV )
+				{
+					switch (event.KeyInput.Key)
+					{
+					case KEY_UP:    // fall-through
+					case KEY_DOWN:  // fall-through
+					case KEY_HOME:  // fall-through
+					case KEY_PRIOR: // fall-through
+					case KEY_END:   // fall-through
+					case KEY_NEXT:  // fall-through
+						return ScrollBarV->OnEvent(event);
+					default:
+						break;
+					}
+				}
+				if ( ScrollBarH )
+				{
+					switch (event.KeyInput.Key)
+					{
+					case KEY_LEFT:	// fall-through
+					case KEY_RIGHT:
+						return ScrollBarH->OnEvent(event);
+					default:
+						break;
+					}
+
 				}
 			}
 			break;
@@ -832,6 +866,7 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 		{
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_SELECT;
 			LastEventNode = Selected;
+			LastSelectTriggerEvent = event;
 			Parent->OnEvent( event );
 			LastEventNode = 0;
 		}

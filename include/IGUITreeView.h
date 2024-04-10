@@ -178,10 +178,19 @@ namespace gui
 		*/
 		virtual IGUITreeViewNode* getNextSibling() const = 0;
 
-		//! Returns the next visible (expanded, may be out of scrolling) node from this node.
+		//! Returns the next visible (expanded, may be out of scrolling) node after this node.
 		/** \return The next visible node from this node or 0 if this is
 		the last visible node. */
-		virtual IGUITreeViewNode* getNextVisible() const = 0;
+		virtual IGUITreeViewNode* getNextVisible() const
+		{
+			return getNextNode(true);
+		}
+
+		//! Returns the next node in tree after this node (if everything would be expanded)
+		/** 
+		\param onlyVisible When true only check visible nodes (so ignoring non-expanded)
+		\return The next visible node from this node or 0 if this is the last node. */
+		virtual IGUITreeViewNode* getNextNode(bool onlyVisible) const = 0;
 
 		//! Deletes a child node.
 		/** \return Returns true if the node was found as a child and is deleted. */
@@ -282,6 +291,10 @@ namespace gui
 		//! Returns the node which is associated to the last event.
 		/** This pointer is only valid inside the OnEvent call! */
 		virtual IGUITreeViewNode* getLastEventNode() const = 0;
+
+		//! Returns the (mouse) event which triggered EGET_TREEVIEW_NODE_SELECT
+		/** To be used inside OnEvent (like checking for ctrl or shift) */
+		virtual const irr::SEvent& getLastSelectTriggerEvent() const = 0;
 
 		//! Access the vertical scrollbar
 		virtual IGUIScrollBar* getVerticalScrollBar() const = 0;

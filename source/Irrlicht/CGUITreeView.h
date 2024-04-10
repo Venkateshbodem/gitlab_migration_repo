@@ -80,14 +80,17 @@ namespace gui
 		//! sets the user data2 (IReferenceCounted) of this node
 		virtual void setData2( IReferenceCounted* data ) IRR_OVERRIDE
 		{
-			if( Data2 )
+			if ( data != Data2 )
 			{
-				Data2->drop();
-			}
-			Data2 = data;
-			if( Data2 )
-			{
-				Data2->grab();
+				if( Data2 )
+				{
+					Data2->drop();
+				}
+				Data2 = data;
+				if( Data2 )
+				{
+					Data2->grab();
+				}
 			}
 		}
 
@@ -186,8 +189,8 @@ namespace gui
 		//! Returns the next sibling node from this node.
 		virtual IGUITreeViewNode* getNextSibling() const IRR_OVERRIDE;
 
-		//! Returns the next visible (expanded, may be out of scrolling) node from this node.
-		virtual IGUITreeViewNode* getNextVisible() const IRR_OVERRIDE;
+		//! Returns the next node in tree after this node (if everything would be expanded)
+		virtual IGUITreeViewNode* getNextNode(bool onlyVisible) const IRR_OVERRIDE;
 
 		//! Deletes a child node.
 		virtual bool deleteChild( IGUITreeViewNode* child ) IRR_OVERRIDE;
@@ -222,16 +225,16 @@ namespace gui
 
 	private:
 
-		CGUITreeView*			Owner;
-		CGUITreeViewNode*		Parent;
-		core::stringw			Text;
-		core::stringw			Icon;
-		s32				ImageIndex;
-		s32				SelectedImageIndex;
+		CGUITreeView*		Owner;
+		CGUITreeViewNode*	Parent;
+		core::stringw Text;
+		core::stringw Icon;
+		s32	ImageIndex;
+		s32	SelectedImageIndex;
 		void*				Data;
-		IReferenceCounted*		Data2;
-		bool				Expanded;
-		core::list<CGUITreeViewNode*>	Children;
+		IReferenceCounted*	Data2;
+		bool Expanded;
+		core::list<CGUITreeViewNode*> Children;
 	};
 
 
@@ -314,6 +317,11 @@ namespace gui
 		virtual IGUITreeViewNode* getLastEventNode() const IRR_OVERRIDE
 		{ return LastEventNode; }
 
+		virtual const irr::SEvent& getLastSelectTriggerEvent() const IRR_OVERRIDE
+		{
+			return LastSelectTriggerEvent;
+		}
+
 		//! Access the vertical scrollbar
 		virtual IGUIScrollBar* getVerticalScrollBar() const IRR_OVERRIDE;
 
@@ -345,6 +353,7 @@ namespace gui
 		IGUIScrollBar*		ScrollBarV;
 		IGUIImageList*		ImageList;
 		IGUITreeViewNode*	LastEventNode;
+		irr::SEvent         LastSelectTriggerEvent;
 		bool			LinesVisible;
 		bool			Selecting;
 		bool			Clip;
