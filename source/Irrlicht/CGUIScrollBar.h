@@ -67,6 +67,18 @@ namespace gui
 		//! sets the position of the scrollbar
 		virtual void setPos(s32 pos) IRR_OVERRIDE;
 
+		//! Sets whether to draw a background color (EGDC_SCROLLBAR)
+		virtual void setDrawBackground(bool draw) IRR_OVERRIDE
+		{
+			DrawBackground = draw;
+		}
+
+		//! Checks if a background is drawn
+		virtual bool isDrawBackgroundEnabled() const IRR_OVERRIDE
+		{
+			return DrawBackground;
+		}
+
 		//! Access the up (vertical) or left (horizontal) button
 		virtual IGUIButton* getUpLeftButton() const IRR_OVERRIDE
 		{
@@ -112,6 +124,7 @@ namespace gui
 		s32 DesiredPos;
 		u32 LastChange;
 		video::SColor CurrentIconColor;
+		bool DrawBackground;
 
 		f32 range () const { return (f32) ( Max - Min ); }
 	};
