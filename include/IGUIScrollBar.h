@@ -55,6 +55,12 @@ namespace gui
 
 		//! sets the current position of the scrollbar
 		virtual void setPos(s32 pos) = 0;
+
+		//! Access the up (vertical) or left (horizontal) button
+		virtual IGUIButton* getUpLeftButton() const = 0;
+
+		//! Access the right (vertical) or down (horizontal) button
+		virtual IGUIButton* getDownRightButton() const = 0;
 	};
 
 

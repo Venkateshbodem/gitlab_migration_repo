@@ -67,6 +67,18 @@ namespace gui
 		//! sets the position of the scrollbar
 		virtual void setPos(s32 pos) IRR_OVERRIDE;
 
+		//! Access the up (vertical) or left (horizontal) button
+		virtual IGUIButton* getUpLeftButton() const IRR_OVERRIDE
+		{
+			return UpButton;
+		}
+
+		//! Access the right (vertical) or down (horizontal) button
+		virtual IGUIButton* getDownRightButton() const IRR_OVERRIDE
+		{
+			return DownButton;
+		}
+
 		//! updates the rectangle
 		virtual void updateAbsolutePosition() IRR_OVERRIDE;
 
