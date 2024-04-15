@@ -264,6 +264,11 @@ namespace gui
 			return Selected; 
 		}
 
+		//! Scroll to the given node
+		/** Note: targetNode must be in the tree and visible for this to work.
+		* Also only doing vertical scrolling for now */
+		virtual void scrollTo(IGUITreeViewNode* targetNode, irr::gui::EGUI_ALIGNMENT placement) const IRR_OVERRIDE;
+
 		//! returns true if the tree lines are visible
 		virtual bool getLinesVisible() const IRR_OVERRIDE
 		{ return LinesVisible; }

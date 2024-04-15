@@ -246,6 +246,14 @@ namespace gui
 		//! returns the selected node of the tree or 0 if none is selected
 		virtual IGUITreeViewNode* getSelected() const = 0;
 
+		//! Scroll to the given node
+		/** Note: For this to work targetNode must be in the tree and visible
+		* and there must have a vertical scroll bar.
+		* Also only doing vertical scrolling for now 
+		\param targetNode Node to which it should scroll 
+		\param placement If the node should be on top-middle-bottom of element after scrolling */
+		virtual void scrollTo(IGUITreeViewNode* targetNode, irr::gui::EGUI_ALIGNMENT placement = EGUIA_CENTER) const = 0;
+
 		//! returns true if the tree lines are visible
 		virtual bool getLinesVisible() const = 0;
 

@@ -1,7 +1,7 @@
 // This file is part of the "Irrlicht Engine".
 // Written by Reinhard Ostermeier, reinhard@nospam.r-ostermeier.de
 // Expanded by burningwater
-// Bugfixes by Michael Zeilfelder
+// Bugfixes and some features by Michael Zeilfelder
 // Bugfixes by Andreas Reichl
 
 #include "CGUITreeView.h"
@@ -24,7 +24,7 @@ CGUITreeViewNode::CGUITreeViewNode( CGUITreeView* owner, CGUITreeViewNode* paren
 	Data(0), Data2(0), Expanded(false)
 {
 #ifdef _DEBUG
-	setDebugName( "CGUITreeView" );
+	setDebugName( "CGUITreeViewNode" );
 #endif
 }
 
@@ -448,12 +448,10 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 								RelativeRect.getWidth(),
 								RelativeRect.getHeight()  - (scrollBarHorizontal ? ScrollBarSize : 0)
 			), !clip );
-		ScrollBarV->drop();
 
 		ScrollBarV->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 		ScrollBarV->setSubElement(true);
 		ScrollBarV->setPos( 0 );
-		ScrollBarV->grab();
 	}
 
 	if ( scrollBarHorizontal )
@@ -464,12 +462,10 @@ CGUITreeView::CGUITreeView(IGUIEnvironment* environment, IGUIElement* parent,
 								RelativeRect.getWidth() - (scrollBarVertical ? ScrollBarSize : 0),
 								RelativeRect.getHeight()
 			), !clip );
-		ScrollBarH->drop();
 
 		ScrollBarH->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT);
 		ScrollBarH->setSubElement(true);
 		ScrollBarH->setPos( 0 );
-		ScrollBarH->grab();
 	}
 
 	Root = new CGUITreeViewNode( this, 0 );
@@ -649,6 +645,49 @@ void CGUITreeView::updateScrollBarSize(s32 size)
 			core::recti r(0, RelativeRect.getHeight() - ScrollBarSize,
 			              RelativeRect.getWidth() - (ScrollBarV ? ScrollBarSize : 0), RelativeRect.getHeight());
 			ScrollBarH->setRelativePosition(r);
+		}
+	}
+}
+
+void CGUITreeView::scrollTo(IGUITreeViewNode* targetNode, irr::gui::EGUI_ALIGNMENT placement) const
+{
+	if ( !ScrollBarV || !targetNode || !targetNode->isVisible() || !ItemHeight || !TotalItemHeight)
+		return;
+
+	bool found = false;
+	irr::s32 itemTop = 0;
+	IGUITreeViewNode* node = Root->getFirstChild();
+	while( node && !found)
+	{
+		if ( node == targetNode )
+		{
+			found = true;
+		}
+		else
+		{
+			itemTop += ItemHeight;
+			node = node->getNextVisible();
+		}
+	}
+	if ( found )
+	{
+		s32 visibleTreeHeight = AbsoluteRect.getHeight();
+		if ( ScrollBarH )
+		{
+			visibleTreeHeight -= ScrollBarH->getAbsolutePosition().getHeight();
+		}
+
+		switch ( placement )
+		{
+		case EGUIA_UPPERLEFT: 
+			ScrollBarV->setPos(itemTop);
+			break;
+		case EGUIA_LOWERRIGHT:
+			ScrollBarV->setPos(itemTop-(visibleTreeHeight-ItemHeight));
+			break;
+		default:
+			ScrollBarV->setPos(itemTop-(visibleTreeHeight-ItemHeight)/2);	// don't care if outside range, scroll-bar clips
+			break;
 		}
 	}
 }
