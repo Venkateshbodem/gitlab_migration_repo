@@ -248,7 +248,7 @@ namespace gui
 
 		//! Scroll to the given node
 		/** Note: For this to work targetNode must be in the tree and visible
-		* and there must have a vertical scroll bar.
+		* and tree must have a vertical scroll bar.
 		* Also only doing vertical scrolling for now 
 		\param targetNode Node to which it should scroll 
 		\param placement If the node should be on top-middle-bottom of element after scrolling */
