@@ -3,7 +3,7 @@ Changes in 1.9 (not yet released)
 
 - IGUIScrollBar has now getters for the scrollbar buttons and the options to disable background drawing
 - Improved scrollbar handling in CGUITreeView (stepsizes, reacting to keys)
-- Add IGUITreeView::getNextNode (traverse full tree), getLastSelectTriggerEvent (to get mouse-keys) and scrollTo.
+- Add IGUITreeView::getNextNode (traverse full tree), getPrevNode, getLastSelectTriggerEvent (to get mouse-keys) and scrollTo.
 - Bugfix: CGUITreeView no longer dropping EGET_TREEVIEW_NODE_SELECT events when moving mouse while clicking
 - CGUITreeView now shows expand icon (+/-) for sub-nodes with correct text-color
 - Bugfix: CGUITreeView now aligns scrollbars correct so they work on resize

@@ -209,6 +209,16 @@ IGUITreeViewNode* CGUITreeViewNode::getLastChild() const
 	}
 }
 
+IGUITreeViewNode* CGUITreeViewNode::getDeepestChild(bool onlyVisible)
+{
+	if( Children.empty() )
+		return this;
+	if ( onlyVisible && !getExpanded() )
+		return this;
+	core::list<CGUITreeViewNode*>::Iterator it = Children.getLast();
+	return (*it)->getDeepestChild(onlyVisible);
+}
+
 IGUITreeViewNode* CGUITreeViewNode::getPrevSibling() const
 {
 	if( Parent )
@@ -273,6 +283,39 @@ IGUITreeViewNode* CGUITreeViewNode::getNextNode(bool onlyVisible) const
 	}
 
 	return next;
+}
+
+//! Returns the previous node in tree before this node (if everything would be expanded)
+IGUITreeViewNode* CGUITreeViewNode::getPrevNode(bool onlyVisible, bool includeRoot) const
+{
+	if ( isRoot() )
+		return 0;
+
+	IGUITreeViewNode* prev = 0;
+	const IGUITreeViewNode*	node = this;
+
+	prev = node->getPrevSibling();
+
+	if ( !prev )
+	{
+		prev = node->getParent();
+		if ( prev && !includeRoot && prev->isRoot() )
+			return 0;
+		return prev;
+	}
+
+	if ( !prev->hasChildren() || (onlyVisible && !prev->getExpanded()) )
+		return prev;
+
+	IGUITreeViewNode* last = prev->getLastChild();
+	while ( last )
+	{
+		prev = last;
+		if ( !prev->hasChildren() || (onlyVisible && !prev->getExpanded()) )
+			return prev;
+		last = last->getLastChild();
+	}
+	return prev;
 }
 
 bool CGUITreeViewNode::deleteChild( IGUITreeViewNode* child )
@@ -348,7 +391,7 @@ void CGUITreeViewNode::setExpanded( bool expanded )
 	{
 		// Checking in case we did hide a child here
 		if ( Owner->Selected && !Owner->Selected->isVisible() )
-			Owner->Selected = 0;
+			Owner->Selected = this;
 		if ( Owner->HoverSelected && !Owner->HoverSelected->isVisible() )
 			Owner->HoverSelected = 0;
 	}
@@ -677,17 +720,32 @@ void CGUITreeView::scrollTo(IGUITreeViewNode* targetNode, irr::gui::EGUI_ALIGNME
 			visibleTreeHeight -= ScrollBarH->getAbsolutePosition().getHeight();
 		}
 
+		// Btw. don't care if position is outside scroll-bar range, scroll-bar clips
 		switch ( placement )
 		{
-		case EGUIA_UPPERLEFT: 
-			ScrollBarV->setPos(itemTop);
-			break;
-		case EGUIA_LOWERRIGHT:
-			ScrollBarV->setPos(itemTop-(visibleTreeHeight-ItemHeight));
-			break;
-		default:
-			ScrollBarV->setPos(itemTop-(visibleTreeHeight-ItemHeight)/2);	// don't care if outside range, scroll-bar clips
-			break;
+			case EGUIA_UPPERLEFT: 
+				ScrollBarV->setPos(itemTop);
+				break;
+			case EGUIA_LOWERRIGHT:
+				ScrollBarV->setPos(itemTop-(visibleTreeHeight-ItemHeight));
+				break;
+			case EGUIA_CENTER:
+				ScrollBarV->setPos(itemTop-(visibleTreeHeight-ItemHeight)/2);
+				break;
+			case EGUIA_SCALE: // lazy me re-used existing enum. What it means here is: only scroll when you have to and then in the direction it needs to
+			{
+				s32 oldPos = ScrollBarV->getPos();
+				s32 lowestVisiblePos = itemTop-(visibleTreeHeight-ItemHeight);
+				if ( oldPos > itemTop )
+				{
+					ScrollBarV->setPos(itemTop);
+				}
+				else if ( oldPos < lowestVisiblePos )
+				{	
+					ScrollBarV->setPos(lowestVisiblePos);
+				}
+				break;
+			}
 		}
 	}
 }
@@ -776,36 +834,167 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 			}
 			break;
 		case EET_KEY_INPUT_EVENT:
-			if (event.KeyInput.PressedDown)
+			if (event.KeyInput.PressedDown && Selected)
 			{
-				// Have to be careful here to only send event for keys which are absorbed by scrollbars
-				// otherwise we'll get into endless loops as event would be send back to parent
-				if ( ScrollBarV )
+				IGUITreeViewNode* oldSelected = Selected;	// Careful - this can change also through hiding expansion in here
+
+				SEvent changeEvent;
+				changeEvent.EventType        = EET_GUI_EVENT;
+				changeEvent.GUIEvent.Caller  = this;
+				changeEvent.GUIEvent.Element = 0;
+
+				switch (event.KeyInput.Key)
 				{
-					switch (event.KeyInput.Key)
+					case KEY_LEFT:
 					{
-					case KEY_UP:    // fall-through
-					case KEY_DOWN:  // fall-through
-					case KEY_HOME:  // fall-through
-					case KEY_PRIOR: // fall-through
-					case KEY_END:   // fall-through
-					case KEY_NEXT:  // fall-through
-						return ScrollBarV->OnEvent(event);
-					default:
+						if ( Selected->hasChildren() && Selected->getExpanded())
+						{
+							Selected->setExpanded(false);
+							changeEvent.GUIEvent.EventType = EGET_TREEVIEW_NODE_EXPAND;
+							LastEventNode = Selected;
+							Parent->OnEvent( changeEvent );
+							LastEventNode = 0;
+						}
+						else
+						{
+							IGUITreeViewNode* parent = Selected->getParent();
+							if ( parent && !parent->isRoot() )
+							{
+								Selected = parent;
+							}
+						}
+						break;
+					}
+					case KEY_RIGHT:
+					{
+						if ( Selected->hasChildren() )
+						{
+							if ( Selected->getExpanded() )
+							{
+								IGUITreeViewNode* child = Selected->getFirstChild();
+								if ( child )
+								{
+									Selected = child;
+								}
+							}
+							else
+							{
+								Selected->setExpanded(true);
+								changeEvent.GUIEvent.EventType = EGET_TREEVIEW_NODE_COLLAPSE;
+								LastEventNode = Selected;
+								Parent->OnEvent( changeEvent );
+								LastEventNode = 0;
+							}
+						}
+						break;
+					}
+					case KEY_UP:
+					{
+						IGUITreeViewNode* n = Selected->getPrevNode(true);
+						if ( n )
+						{
+							n->setSelected(true);
+						}
+						break;
+					}
+					case KEY_DOWN:
+					{
+						IGUITreeViewNode* n = Selected->getNextNode(true);
+						if ( n )
+						{
+							n->setSelected(true);
+						}
+						break;
+					}
+					case KEY_HOME:
+					{
+						IGUITreeViewNode* firstNode = Root->getNextNode(true);
+						if ( firstNode )
+						{
+							firstNode->setSelected(true);
+						}
+						break;
+					}
+					case KEY_END:
+					{
+						IGUITreeViewNode* lastNode = Root->getDeepestChild(true);
+						if ( lastNode && lastNode != Root )
+						{
+							lastNode->setSelected(true);
+						}
+						break;
+					}
+					case KEY_PRIOR:
+					{
+						IGUITreeViewNode* last = Selected;
+						IGUITreeViewNode* next = 0;
+						s32 numItems = core::max_(getNumItemsDisplayed() - 1, 1);	// how many we try to scroll maximally
+						while (numItems > 0)
+						{
+							next = last->getPrevNode(true);
+							if ( !next )	// don't have so many? Just use as many as we got
+							{
+								break;
+							}
+							last = next;
+							--numItems;
+						}
+						if ( next )
+						{
+							next->setSelected(true);
+						}
+						else if ( last != Selected )
+						{
+							last->setSelected(true);
+						}
+						break;
+					}
+					case KEY_NEXT:
+					{
+						IGUITreeViewNode* last = Selected;
+						IGUITreeViewNode* next = 0;
+						s32 numItems = core::max_(getNumItemsDisplayed() - 1, 1);	// how many we try to scroll maximally
+						while (numItems > 0)
+						{
+							next = last->getNextNode(true);
+							if ( !next )	// don't have so many? Just use as many as we got
+							{
+								break;
+							}
+							last = next;
+							--numItems;
+						}
+						if ( next )
+						{
+							next->setSelected(true);
+						}
+						else if ( last != Selected )
+						{
+							last->setSelected(true);
+						}
 						break;
 					}
 				}
-				if ( ScrollBarH )
+				if( Parent && Selected != oldSelected )
 				{
-					switch (event.KeyInput.Key)
+					if( oldSelected )
 					{
-					case KEY_LEFT:	// fall-through
-					case KEY_RIGHT:
-						return ScrollBarH->OnEvent(event);
-					default:
-						break;
+						changeEvent.GUIEvent.EventType = EGET_TREEVIEW_NODE_DESELECT;
+						LastEventNode = oldSelected;
+						Parent->OnEvent( changeEvent );
+						LastEventNode = 0;
 					}
+					if( Selected )
+					{
+						scrollTo(Selected, EGUIA_SCALE);
 
+						changeEvent.GUIEvent.EventType = EGET_TREEVIEW_NODE_SELECT;
+						LastEventNode = Selected;
+						LastSelectTriggerEvent = event;
+						Parent->OnEvent( changeEvent );
+						LastEventNode = 0;
+					}
+					return true;
 				}
 			}
 			break;
@@ -823,8 +1012,8 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 {
 	IGUITreeViewNode* oldSelected = Selected;	// Careful - this can change also through hiding expansion in here
 	s32	selIdx=-1;
-	SEvent event;
 
+	SEvent event;
 	event.EventType			= EET_GUI_EVENT;
 	event.GUIEvent.Caller	= this;
 	event.GUIEvent.Element = 0;
@@ -894,7 +1083,7 @@ void CGUITreeView::mouseAction( s32 xpos, s32 ypos, bool onlyHover /*= false*/ )
 	{
 		if( oldSelected )
 		{
-			// Note: It might also be lost when deleting nodes or disabling expansion without click 
+			// Note: It might also be lost when deleting nodes
 			//       Not sure yet if/how to handle those. Or maybe this event isn't even necessary
 			event.GUIEvent.EventType = EGET_TREEVIEW_NODE_DESELECT;
 			LastEventNode = oldSelected;
@@ -1227,6 +1416,19 @@ IGUIScrollBar* CGUITreeView::getVerticalScrollBar() const
 IGUIScrollBar* CGUITreeView::getHorizontalScrollBar() const
 {
 	return ScrollBarH;
+}
+
+irr::s32 CGUITreeView::getNumItemsDisplayed() const
+{
+	if ( !ItemHeight )
+		return 0;
+
+	s32 h = AbsoluteRect.getHeight();
+	if ( ScrollBarH )
+	{
+		h -= ScrollBarH->getAbsolutePosition().getHeight();
+	}
+	return h / ItemHeight;
 }
 
 } // end namespace gui

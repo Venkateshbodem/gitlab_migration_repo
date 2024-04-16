@@ -183,14 +183,20 @@ namespace gui
 		//! Return the last child note from this node.
 		virtual IGUITreeViewNode* getLastChild() const IRR_OVERRIDE;
 
+		// Note: only internal for now - can put in interface if someone needs it
+		IGUITreeViewNode* getDeepestChild(bool onlyVisible);
+
 		//! Returns the previous sibling node from this node.
 		virtual IGUITreeViewNode* getPrevSibling() const IRR_OVERRIDE;
 
 		//! Returns the next sibling node from this node.
 		virtual IGUITreeViewNode* getNextSibling() const IRR_OVERRIDE;
 
-		//! Returns the next node in tree after this node (if everything would be expanded)
+		//! Returns the next node in tree after this node
 		virtual IGUITreeViewNode* getNextNode(bool onlyVisible) const IRR_OVERRIDE;
+
+		//! Returns the previous node in tree before this node (if everything would be expanded)
+		virtual IGUITreeViewNode* getPrevNode(bool onlyVisible, bool includeRoot) const IRR_OVERRIDE;
 
 		//! Deletes a child node.
 		virtual bool deleteChild( IGUITreeViewNode* child ) IRR_OVERRIDE;
@@ -336,6 +342,9 @@ namespace gui
 	private:
 		//! calculates the height of an node and of all visible nodes.
 		void recalculateItemHeight();
+
+		// how many items can be fully displayed
+		s32 getNumItemsDisplayed() const;
 
 		//! Resize scrollbars when their size in the skin has changed
 		void updateScrollBarSize(s32 size);
