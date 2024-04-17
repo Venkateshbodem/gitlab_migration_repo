@@ -229,6 +229,13 @@ namespace gui
 		//! Returns true if this node is visible (all parents are expanded).
 		virtual bool isVisible() const IRR_OVERRIDE;
 
+		//! Calculate number of visible child nodes below this node
+		u32 countVisibleChildrenRecursive() const;
+
+		// Faster iterating. Last element on stack is current iterator. When stack is empty the end is reached
+		static bool getNextIterator(irr::core::array< irr::core::list<CGUITreeViewNode*>::Iterator >& iteratorStack);
+
+
 	private:
 
 		CGUITreeView*		Owner;

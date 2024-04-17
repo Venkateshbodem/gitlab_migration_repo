@@ -244,7 +244,7 @@ IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
 {
 	if( Parent )
 	{
-		// Note: Slow. We could add a function to core::list that gives back iterator from element pointer (that's possible if you know the pointer is a list element)
+		// Note: Slow. 
 		for( core::list<CGUITreeViewNode*>::Iterator it = Parent->Children.begin(); it != Parent->Children.end(); ++it )
 		{
 			if( this == *it )
@@ -258,6 +258,53 @@ IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
 		}
 	}
 	return 0;
+}
+
+u32 CGUITreeViewNode::countVisibleChildrenRecursive() const
+{
+	u32 result = Children.size();
+	if ( result > 0 )
+	{
+		const core::list<CGUITreeViewNode*>::ConstIterator itEnd = Children.end();
+		for ( core::list<CGUITreeViewNode*>::ConstIterator it = Children.begin(); it != itEnd; ++it )
+		{
+			if ( (*it)->getExpanded() )
+				result += (*it)->countVisibleChildrenRecursive();
+		}
+	}
+	return result;
+}
+
+bool CGUITreeViewNode::getNextIterator(irr::core::array< irr::core::list<CGUITreeViewNode*>::Iterator >& iteratorStack)
+{
+	if ( iteratorStack.empty() )
+		return false;
+
+	irr::core::list<CGUITreeViewNode*>::Iterator itEnd;	// Irrlicht just has 0 pointer in default iterator
+	irr::core::list<CGUITreeViewNode*>::Iterator& iterLast = iteratorStack.getLast();
+	if (iterLast != itEnd)
+	{
+		if( (*iterLast)->hasChildren() )
+		{
+			iteratorStack.push_back((*iterLast)->Children.begin());
+			return true;
+		}
+
+		++iterLast;
+		if ( iterLast != itEnd)
+			return true;
+	}
+
+	while(1)
+	{
+		iteratorStack.erase(iteratorStack.size()-1);	// pop_back
+		if ( iteratorStack.empty() )
+			return false;
+		irr::core::list<CGUITreeViewNode*>::Iterator& parentLast = iteratorStack.getLast();
+		++parentLast;
+		if ( parentLast != itEnd )
+			return true;
+	}
 }
 
 IGUITreeViewNode* CGUITreeViewNode::getNextNode(bool onlyVisible) const
@@ -638,14 +685,8 @@ void CGUITreeView::recalculateItemHeight()
 		}
 	}
 
-	TotalItemHeight = 0;
+	TotalItemHeight = Root->countVisibleChildrenRecursive() * ItemHeight;
 	TotalItemWidth = AbsoluteRect.getWidth() * 2;
-	IGUITreeViewNode* node = Root->getFirstChild();
-	while( node )
-	{
-		TotalItemHeight += ItemHeight;
-		node = node->getNextVisible();
-	}
 
 	if ( ScrollBarV )
 	{
@@ -1112,7 +1153,7 @@ void CGUITreeView::draw()
 	IGUISkin* skin = Environment->getSkin();
 
 	updateScrollBarSize(skin->getSize(EGDS_SCROLLBAR_SIZE));
-	recalculateItemHeight(); // if the font changed
+	recalculateItemHeight();
 
 	irr::video::IVideoDriver* driver = Environment->getVideoDriver();
 
@@ -1177,9 +1218,22 @@ void CGUITreeView::draw()
 		frameRect.LowerRightCorner.Y -= ScrollBarV->getPos();
 	}
 
-	IGUITreeViewNode* node = Root->getFirstChild();
-	while( node )
+	irr::core::array< irr::core::list<CGUITreeViewNode*>::Iterator > nodeIteratorStack;
+	if ( Root->hasChildren() )
+		nodeIteratorStack.push_back(Root->Children.begin());
+	while( !nodeIteratorStack.empty() )
 	{
+		IGUITreeViewNode* node = *nodeIteratorStack.getLast();
+
+		// TODO: still a bit ugly, we can filter invisible earlier by rewriting getNextIterator a bit, but already way faster than old solution with getNextVisibleNode
+		while ( !node->isVisible() && CGUITreeViewNode::getNextIterator(nodeIteratorStack) )
+		{
+			node = *nodeIteratorStack.getLast();
+		}
+		if ( nodeIteratorStack.empty() )
+			break;
+
+
 		const bool isSelected = node == getSelected();
 		frameRect.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X + 1 + node->getLevel() * IndentWidth;
 		if ( ScrollBarH )
@@ -1353,7 +1407,7 @@ void CGUITreeView::draw()
 		frameRect.UpperLeftCorner.Y += ItemHeight;
 		frameRect.LowerRightCorner.Y += ItemHeight;
 
-		node = node->getNextVisible();
+		CGUITreeViewNode::getNextIterator(nodeIteratorStack);
 	}
 
 	IGUIElement::draw();
