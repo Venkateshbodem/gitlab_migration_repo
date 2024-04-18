@@ -1225,7 +1225,7 @@ void CGUITreeView::draw()
 		NodeIteratorStack.push_back(Root->Children.begin());
 	while( !NodeIteratorStack.empty() )
 	{
-		IGUITreeViewNode* node = *NodeIteratorStack.getLast();
+		CGUITreeViewNode* node = *NodeIteratorStack.getLast();
 
 		const bool isSelected = node == getSelected();
 		const s32 level = (s32)NodeIteratorStack.size();	// faster than node->getLevel()
@@ -1333,7 +1333,7 @@ void CGUITreeView::draw()
 						iconWidth += ImageList->getImageSize().Width + 3;
 						textRect.UpperLeftCorner.X += ImageList->getImageSize().Width + 3;
 					}
-					else if( ( IconFont && static_cast<CGUITreeViewNode*>( node )->Icon.size() )
+					else if( ( IconFont && node->Icon.size() )
 						&& ( ( ImageLeftOfIcon && n == 1 )
 						|| ( !ImageLeftOfIcon && n == 0 ) ) )
 					{
@@ -1343,7 +1343,7 @@ void CGUITreeView::draw()
 					}
 				}
 
-				Font->draw( node->getText(), textRect, textCol, false, true, &clientClip );
+				Font->draw( node->Text, textRect, textCol, false, true, &clientClip );
 
 				textRect.UpperLeftCorner.X -= iconWidth;
 			}

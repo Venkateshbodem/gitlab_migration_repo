@@ -1,6 +1,7 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- Avoid unnecessary string copies in GUI code when drawing fonts (accidentally introduced in Irrlicht 1.6).
 - IGUIScrollBar has now getters for the scrollbar buttons and the options to disable background drawing
 - Improved scrollbar handling in CGUITreeView (stepsizes, reacting to keys)
 - Add IGUITreeView::getNextNode (traverse full tree), getPrevNode, getLastSelectTriggerEvent (to get mouse-keys) and scrollTo.
