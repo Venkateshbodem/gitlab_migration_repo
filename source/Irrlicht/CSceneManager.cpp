@@ -1534,7 +1534,7 @@ void CSceneManager::drawAll()
 		{
 			LightManager->OnRenderPassPreRender(CurrentRenderPass);
 		}
-		else
+		else if ( LightList.size() > 1 )
 		{
 			// Sort the lights by distance from the camera
 			core::vector3df camWorldPos(0, 0, 0);
