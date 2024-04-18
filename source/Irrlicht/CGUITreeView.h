@@ -233,7 +233,7 @@ namespace gui
 		u32 countVisibleChildrenRecursive() const;
 
 		// Faster iterating. Last element on stack is current iterator. When stack is empty the end is reached
-		static bool getNextIterator(irr::core::array< irr::core::list<CGUITreeViewNode*>::Iterator >& iteratorStack);
+		static bool getNextIterator(irr::core::array< irr::core::list<CGUITreeViewNode*>::Iterator >& iteratorStack, bool onlyVisible);
 
 
 	private:
@@ -375,6 +375,7 @@ namespace gui
 		IGUIImageList*		ImageList;
 		IGUITreeViewNode*	LastEventNode;
 		irr::SEvent         LastSelectTriggerEvent;
+		irr::core::array< irr::core::list<CGUITreeViewNode*>::Iterator > NodeIteratorStack;	// member instead of local to avoid memory allocations each frame
 		bool			LinesVisible;
 		bool			Selecting;
 		bool			Clip;
