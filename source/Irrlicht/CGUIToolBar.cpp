@@ -36,8 +36,8 @@ CGUIToolBar::CGUIToolBar(IGUIEnvironment* environment, IGUIElement* parent, s32 
 		if ( parent && parent->hasType(EGUIET_WINDOW) )
 		{
 			core::rect<s32> clientRectParent = static_cast<IGUIWindow*>(parent)->getClientRect();
-			x = clientRectParent.UpperLeftCorner.X - rectParent.UpperLeftCorner.X;
-			y = clientRectParent.UpperLeftCorner.Y - rectParent.UpperLeftCorner.Y;
+			x = clientRectParent.UpperLeftCorner.X;
+			y = clientRectParent.UpperLeftCorner.Y;
 			rectParent = clientRectParent;
 		}
 
