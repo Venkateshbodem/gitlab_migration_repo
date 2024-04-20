@@ -494,7 +494,7 @@ void CGUIFont::draw(const core::stringw& text, const core::rect<s32>& position,
 					bool hcenter, bool vcenter, const core::rect<s32>* clip
 				)
 {
-	if (!Driver || !SpriteBank)
+	if (!Driver || !SpriteBank || text.empty())
 		return;
 
 	core::dimension2d<s32> textDimension;	// NOTE: don't make this u32 or the >> later on can fail when the dimension width is < position width
