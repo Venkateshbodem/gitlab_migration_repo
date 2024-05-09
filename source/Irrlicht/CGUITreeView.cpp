@@ -244,7 +244,7 @@ IGUITreeViewNode* CGUITreeViewNode::getNextSibling() const
 {
 	if( Parent )
 	{
-		// Note: Slow. 
+		// Note: Slow.
 		for( core::list<CGUITreeViewNode*>::Iterator it = Parent->Children.begin(); it != Parent->Children.end(); ++it )
 		{
 			if( this == *it )
@@ -726,7 +726,7 @@ void CGUITreeView::updateScrollBarSize(s32 size)
 			ScrollBarV->setRelativePosition(r);
 		}
 
-		if ( ScrollBarH ) 
+		if ( ScrollBarH )
 		{
 			core::recti r(0, RelativeRect.getHeight() - ScrollBarSize,
 			              RelativeRect.getWidth() - (ScrollBarV ? ScrollBarSize : 0), RelativeRect.getHeight());
@@ -766,7 +766,7 @@ void CGUITreeView::scrollTo(IGUITreeViewNode* targetNode, irr::gui::EGUI_ALIGNME
 		// Btw. don't care if position is outside scroll-bar range, scroll-bar clips
 		switch ( placement )
 		{
-			case EGUIA_UPPERLEFT: 
+			case EGUIA_UPPERLEFT:
 				ScrollBarV->setPos(itemTop);
 				break;
 			case EGUIA_LOWERRIGHT:
@@ -784,7 +784,7 @@ void CGUITreeView::scrollTo(IGUITreeViewNode* targetNode, irr::gui::EGUI_ALIGNME
 					ScrollBarV->setPos(itemTop);
 				}
 				else if ( oldPos < lowestVisiblePos )
-				{	
+				{
 					ScrollBarV->setPos(lowestVisiblePos);
 				}
 				break;
@@ -1017,6 +1017,8 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 						}
 						break;
 					}
+					default:
+						break;
 				}
 				if( Parent && Selected != oldSelected )
 				{
@@ -1246,7 +1248,7 @@ void CGUITreeView::draw()
 				driver->draw2DRectangle( skin->getColor( EGDC_HIGH_LIGHT ), copyFrameRect, &clientClip );
 			}
 
-			irr::video::SColor textCol = isEnabled() ? 
+			irr::video::SColor textCol = isEnabled() ?
 											( isSelected ? skin->getColor(EGDC_HIGH_LIGHT_TEXT) : skin->getColor(EGDC_BUTTON_TEXT) )
 											: skin->getColor(EGDC_GRAY_TEXT);
 
