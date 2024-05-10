@@ -468,7 +468,7 @@ public:
 		case ECF_DXT3:
 		case ECF_DXT4:
 		case ECF_DXT5:
-			return 128;
+			return 8;
 		case ECF_PVRTC_RGB2:
 		case ECF_PVRTC_ARGB2:
 		case ECF_PVRTC2_ARGB2:
