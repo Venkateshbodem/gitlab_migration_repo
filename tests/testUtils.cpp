@@ -509,7 +509,7 @@ void logTestString(const char * format, ...)
 #endif
 #endif
 
-	(void)printf(logString);
+	(void)printf("%s", logString);
 	if (logFile)
 	{
 		(void)fprintf(logFile, "%s", logString);
