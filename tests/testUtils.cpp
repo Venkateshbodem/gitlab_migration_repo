@@ -333,7 +333,7 @@ float fuzzyCompareImages(irr::video::IVideoDriver * driver,
 void stabilizeScreenBackground(irr::video::IVideoDriver * driver,
 		irr::video::SColor color)
 {
-	for(int i = 0; i < 10000; ++i) 
+	for(int i = 0; i < 10000; ++i)
 	{
 		driver->beginScene(video::ECBF_COLOR | video::ECBF_DEPTH, color);
 		driver->endScene();
@@ -379,7 +379,7 @@ void stabilizeScreenBackground(irr::video::IVideoDriver * driver,
 		}
 		screenshot->drop();
 	}
-	
+
 	logTestString("stabilizeScreenBackground failed\n");
 }
 
@@ -512,7 +512,7 @@ void logTestString(const char * format, ...)
 	(void)printf(logString);
 	if (logFile)
 	{
-		(void)fprintf(logFile, logString);
+		(void)fprintf(logFile, "%s", logString);
 		(void)fflush(logFile);
 	}
 
