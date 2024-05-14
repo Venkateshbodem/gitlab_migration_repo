@@ -3757,9 +3757,9 @@ s32 COpenGLDriver::addHighLevelShaderMaterial(
 
 	COpenGLSLMaterialRenderer* r = new COpenGLSLMaterialRenderer(
 			this, nr,
-			vertexShaderProgram, vertexShaderEntryPointName, vsCompileTarget,
-			pixelShaderProgram, pixelShaderEntryPointName, psCompileTarget,
-			geometryShaderProgram, geometryShaderEntryPointName, gsCompileTarget,
+			vertexShaderProgram, 
+			pixelShaderProgram, 
+			geometryShaderProgram,
 			inType, outType, verticesOut,
 			callback,baseMaterial, userData);
 
