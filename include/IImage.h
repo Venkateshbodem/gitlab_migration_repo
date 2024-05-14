@@ -36,7 +36,7 @@ public:
 
 		// We want the exact pitch even for compressed formats
 		if ( Size.Height > 0 )
-			Pitch = getDataSizeFromFormat(Format, Size.Width, Size.Height) / Size.Height;
+			Pitch = (irr::u32)(getDataSizeFromFormat(Format, Size.Width, Size.Height) / (size_t)Size.Height);
 		else
 			Pitch = 0;
 	}
