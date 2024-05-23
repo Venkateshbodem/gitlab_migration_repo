@@ -1,6 +1,9 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- Empty meshes and meshbuffers now have invalid bounding-boxes. 
+  Meshes no longer add invalid meshbuffer bounding boxes when recalculating their bounding box.
+  Fixes bugs that empty meshbuffers could increase the bounding box sometimes and that SMesh could ignore meshbuffers with a single point.
 - Avoid unnecessary string copies in GUI code when drawing fonts (accidentally introduced in Irrlicht 1.6).
 - IGUIScrollBar has now getters for the scrollbar buttons and the options to disable background drawing
 - Improved scrollbar handling in CGUITreeView (stepsizes, reacting to keys)
@@ -23,7 +26,7 @@ Changes in 1.9 (not yet released)
 - Fix: CGUITabControl now catching EMIE_LMOUSE_PRESSED_DOWN
 - Add options for transparency node sorting algorithm.
 - CImageWriterPNG now also supports the writeImageToFile param to allow setting compressing level. 0 stays default, 1-10 for range increasing compression level.
-- Add io::IUserData which can be set in SMaterial to make it easer passing additional material values to shaders
+- Add io::IUserData which can be set in SMaterial to make it easier passing additional material values to shaders
 - Add lens shift support for the camera and the perspective projection functions
 - TGA loader no longer reduces 24&32 bit TGA's with palettes to 16 bit. Thanks @erlehmann for report: https://irrlicht.sourceforge.io/forum/viewtopic.php?t=52925
 - Fix compile error with OS X 10.10 SDK, bug #463. Thanks @Ryan Schmidt for report and patch.
