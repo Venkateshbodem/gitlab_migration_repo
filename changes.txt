@@ -1,6 +1,8 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- Add parameter to setViewPort which allows disabling clipping of the area. Will only work in OpenGL.
+  Thanks @Andrey01 for mentioning a use-case for this: https://irrlicht.sourceforge.io/forum/viewtopic.php?t=53020
 - Empty meshes and meshbuffers now have invalid bounding-boxes. 
   Meshes no longer add invalid meshbuffer bounding boxes when recalculating their bounding box.
   Fixes bugs that empty meshbuffers could increase the bounding box sometimes and that SMesh could ignore meshbuffers with a single point.

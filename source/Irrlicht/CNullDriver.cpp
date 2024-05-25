@@ -770,7 +770,7 @@ bool CNullDriver::setRenderTarget(ITexture* texture, u16 clearFlag, SColor clear
 }
 
 //! sets a viewport
-void CNullDriver::setViewPort(const core::rect<s32>& area)
+void CNullDriver::setViewPort(const core::rect<s32>& area, bool clipToRenderTarget)
 {
 }
 
