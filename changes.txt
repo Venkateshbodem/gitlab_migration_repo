@@ -1,6 +1,7 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- CGUIEditBox::setText now resets cursorpos and text markers
 - Add parameter to setViewPort which allows disabling clipping of the area. Will only work in OpenGL.
   Thanks @Andrey01 for mentioning a use-case for this: https://irrlicht.sourceforge.io/forum/viewtopic.php?t=53020
 - Empty meshes and meshbuffers now have invalid bounding-boxes. 
