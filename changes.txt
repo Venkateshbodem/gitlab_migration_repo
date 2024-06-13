@@ -1,6 +1,9 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- New ETCF_ALLOW_MEMORY_COPY texture creation flag makes having an extra texture copy for OpenGL textures optional.
+  This is now disabled by default. It saves a lot memory, but the cost is that lock() calls get slower.
+  So enable it for textures which you need to read a lot on CPU (like for example font textures).
 - CGUIEditBox::setText now resets cursorpos and text markers
 - Add parameter to setViewPort which allows disabling clipping of the area. Will only work in OpenGL.
   Thanks @Andrey01 for mentioning a use-case for this: https://irrlicht.sourceforge.io/forum/viewtopic.php?t=53020
@@ -38,9 +41,9 @@ Changes in 1.9 (not yet released)
   In 1.8 we could still use gl_FrontMaterial, but that is no longer supported in shaders
 - Get IMeshBuffer::append functions working for a few more cases and adapt interface so one can prevent the BoundingBox update.
 - Bugfix: SMaterialLayer::operator!= no longer returns true when comparing a layer without texture matrix with one with a set identity texture matrix. Those are the same.
-- SMaterialLayer no longer releases allocated texture memory before destructor unless explicitly requested.
+- SMaterialLayer no longer releases allocated TextureMatrix memory before destructor unless explicitly requested.
   This can avoid constantly allocation/releasing memory in the active driver material when setting materials.
-  Note that it does not copy texture memory when it's unused. This is still optimized.
+  Note that it does not copy the TextureMatrix memory when it's unused. This is still optimized.
 - Add IMeshSceneNode::setNodeRegistration to allow registering MeshSceneNodes to the SceneManager per buffer instead of per node
 - Add SMaterialLayer::hasSetTextureMatrix and SMaterialLayer::resetTextureMatrix
 - Add IShaderConstantSetCallBack::OnCreate to allow earlier access to IMaterialRendererServices
