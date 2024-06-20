@@ -738,7 +738,7 @@ IOctreeSceneNode* CSceneManager::addOctreeSceneNode(IMesh* mesh, ISceneNode* par
 
 	if (node)
 	{
-		node->setMesh(mesh);
+		node->setMesh(mesh, true);
 		node->drop();
 	}
 
