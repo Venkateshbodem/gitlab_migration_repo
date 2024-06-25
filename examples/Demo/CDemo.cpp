@@ -46,6 +46,24 @@ void CDemo::run()
 		resolution.Height = 480;
 	}
 
+	// Try to use desktop resolution for fullscreen
+	// Irrlicht still does fullscreen by switching monitor modes.
+	// That's not really a good idea anymore these days (messes with user desktop and
+	// on many WindowManager + X11 combinations on Linux it fails by now).
+	// Using desktop resolution at least has a higher chance of still working.
+	if ( fullscreen )
+	{
+		IrrlichtDevice* nullDevice = createDevice(irr::video::EDT_NULL);
+		if ( nullDevice )
+		{
+			video::IVideoModeList * videoModes = nullDevice->getVideoModeList ();
+			if ( videoModes )
+			{
+				resolution = videoModes->getDesktopResolution();
+			}
+		}
+	}
+
 	irr::SIrrlichtCreationParameters params;
 	params.DriverType=driverType;
 	params.WindowSize=resolution;
