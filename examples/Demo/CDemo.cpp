@@ -44,10 +44,11 @@ void CDemo::run()
 	{
 		resolution.Width = 640;
 		resolution.Height = 480;
+		aa = 0; // seems to cause troubles (at least on X11).
 	}
 
-	// Try to use desktop resolution for fullscreen
-	// Irrlicht still does fullscreen by switching monitor modes.
+	// Try to use desktop resolution for full-screen
+	// Irrlicht still does full-screen by switching monitor modes.
 	// That's not really a good idea anymore these days (messes with user desktop and
 	// on many WindowManager + X11 combinations on Linux it fails by now).
 	// Using desktop resolution at least has a higher chance of still working.
@@ -61,6 +62,7 @@ void CDemo::run()
 			{
 				resolution = videoModes->getDesktopResolution();
 			}
+			nullDevice->drop();
 		}
 	}
 
