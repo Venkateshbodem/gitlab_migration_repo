@@ -2243,11 +2243,12 @@ GLint COpenGLDriver::getTextureWrapMode(const u8 clamp)
 void COpenGLDriver::setBasicRenderStates(const SMaterial& material, const SMaterial& lastmaterial,
 	bool resetAllRenderStates)
 {
-	// Fixed pipeline isn't important for shader based materials
+	// Switch between shader and fixed pipeline
+	// Pure fixed pipeline settings are disabled for shader materials
 
 	E_OPENGL_FIXED_PIPELINE_STATE tempState = FixedPipelineState;
 
-	if (resetAllRenderStates || tempState == EOFPS_ENABLE || tempState == EOFPS_DISABLE_TO_ENABLE)
+	if (tempState == EOFPS_ENABLE || tempState == EOFPS_DISABLE_TO_ENABLE)	// fixed function pipeline only
 	{
 		// material colors
 		if (resetAllRenderStates || tempState == EOFPS_DISABLE_TO_ENABLE ||
@@ -2390,7 +2391,7 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial& material, const SMater
 		// Set fixed pipeline as active.
 		tempState = EOFPS_ENABLE;
 	}
-	else if (tempState == EOFPS_ENABLE_TO_DISABLE)
+	else if ((resetAllRenderStates && tempState == EOFPS_DISABLE) || tempState == EOFPS_ENABLE_TO_DISABLE)	// shader pipeline only
 	{
 		glDisable(GL_COLOR_MATERIAL);
 		glDisable(GL_LIGHTING);
@@ -2401,7 +2402,8 @@ void COpenGLDriver::setBasicRenderStates(const SMaterial& material, const SMater
 		tempState = EOFPS_DISABLE;
 	}
 
-	// tempState == EOFPS_DISABLE - driver doesn't calls functions related to fixed pipeline.
+	// Switching or resetting pipeline done.
+	// tempState now either EOFPS_DISABLE or EOFPS_ENABLE. Stuff below affects fixed and shader pipeline.
 
 	// fillmode - fixed pipeline call, but it emulate GL_LINES behaviour in rendering, so it stay here.
 	if (resetAllRenderStates || (lastmaterial.Wireframe != material.Wireframe) || (lastmaterial.PointCloud != material.PointCloud))
