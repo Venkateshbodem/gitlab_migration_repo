@@ -651,6 +651,12 @@ public:
 	/** \returns A bitmask which is a combination of ::EFOCUS_FLAG flags.*/
 	virtual u32 getFocusBehavior() const = 0;
 
+	//! Set a delay in milliseconds to show/hide menus
+	virtual void setMenuShowDelay(irr::u32 msDelay) = 0;
+
+	//! Get a delay in milliseconds when to showing/hiding menus
+	virtual irr::u32 getMenuShowDelay() const = 0;
+
 	//! Adds a IGUIElement to deletion queue.
 	/** Queued elements will be removed at the end of each drawAll call.
 	Or latest in the destructor of the GUIEnvironment.
