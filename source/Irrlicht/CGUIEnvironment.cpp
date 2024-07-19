@@ -1332,10 +1332,10 @@ IGUIEditBox* CGUIEnvironment::addEditBox(const wchar_t* text,
 //! Adds a spin box to the environment
 IGUISpinBox* CGUIEnvironment::addSpinBox(const wchar_t* text,
 					 const core::rect<s32> &rectangle,
-					 bool border,IGUIElement* parent, s32 id)
+					 bool border,IGUIElement* parent, s32 id, bool hasButtons)
 {
 	IGUISpinBox* d = new CGUISpinBox(text, border,this,
-		parent ? parent : this, id, rectangle);
+		parent ? parent : this, id, rectangle, hasButtons);
 
 	d->drop();
 	return d;

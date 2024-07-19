@@ -1,6 +1,7 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- SpinBoxes can now also be created without buttons
 - Opening/closing sub-menus has now a delay. It can be controlled via IGUIEnvironment::setMenuShowDelay.
 - Add new flag to IMeshSceneNode::setMesh to allow to keeping the original node materials.
 - New ETCF_ALLOW_MEMORY_COPY texture creation flag makes having an extra texture copy for OpenGL textures optional.

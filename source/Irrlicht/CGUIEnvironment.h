@@ -151,7 +151,7 @@ public:
 
 	//! Adds a spin box to the environment
 	virtual IGUISpinBox* addSpinBox(const wchar_t* text, const core::rect<s32>& rectangle,
-		bool border=false,IGUIElement* parent=0, s32 id=-1) IRR_OVERRIDE;
+		bool border=false,IGUIElement* parent=0, s32 id=-1, bool hasButtons=true) IRR_OVERRIDE;
 
 	//! Adds a tab control to the environment.
 	virtual IGUITabControl* addTabControl(const core::rect<s32>& rectangle,
