@@ -15,7 +15,7 @@ namespace scene
 class IShadowVolumeSceneNode;
 class IMesh;
 
-//! Option for nodes how to register themeselves at the SceneManager
+//! Option for nodes how to register themselves at the SceneManager
 enum ENodeRegistration
 {
 	//! Each node registers once and renders all it's mesh-buffers
