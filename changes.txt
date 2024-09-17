@@ -1,6 +1,7 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- Several IMeshManipulator functions allow now using const IMesh* instead of insisting on non-const pointer
 - SpinBoxes can now also be created without buttons
 - Opening/closing sub-menus has now a delay. It can be controlled via IGUIEnvironment::setMenuShowDelay.
 - Add new flag to IMeshSceneNode::setMesh to allow to keeping the original node materials.
