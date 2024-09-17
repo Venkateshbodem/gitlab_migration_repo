@@ -1427,7 +1427,7 @@ IMesh* CMeshManipulator::createMeshWith1TCoords(const IMesh* mesh) const
 
 
 //! Returns amount of polygons in mesh.
-s32 CMeshManipulator::getPolyCount(const const scene::IMesh* mesh) const
+s32 CMeshManipulator::getPolyCount(const scene::IMesh* mesh) const
 {
 	if (!mesh)
 		return 0;
