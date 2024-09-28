@@ -131,6 +131,15 @@ namespace gui
 		//! Access the vertical scrollbar
 		virtual IGUIScrollBar* getVerticalScrollBar() const IRR_OVERRIDE;
 
+		//! Sets a skin independent font.
+		virtual void setOverrideFont(IGUIFont* font=0) IRR_OVERRIDE;
+
+		//! Gets the override font (if any)
+		virtual IGUIFont* getOverrideFont(void) const IRR_OVERRIDE;
+
+		//! Get the font which is used for drawing
+		virtual IGUIFont* getActiveFont() const IRR_OVERRIDE;
+
 	private:
 
 		struct ListItem
@@ -151,7 +160,7 @@ namespace gui
 			ListItemOverrideColor OverrideColors[EGUI_LBC_COUNT];
 		};
 
-		void recalculateItemHeight();
+		void recalculateItemHeight(bool forceRecalculation=false);
 		void selectNew(s32 ypos, bool onlyHover=false);
 		void recalculateScrollPos();
 		void updateScrollBarSize(s32 size);
@@ -169,9 +178,10 @@ namespace gui
 		s32 ItemHeightOverride;
 		s32 TotalItemHeight;
 		s32 ItemsIconWidth;
-		gui::IGUIFont* Font;
-		gui::IGUISpriteBank* IconBank;
-		gui::IGUIScrollBar* ScrollBar;
+		IGUIFont* Font;
+		IGUIFont* OverrideFont;
+		IGUISpriteBank* IconBank;
+		IGUIScrollBar* ScrollBar;
 		u32 SelectTime;
 		u32 LastKeyTime;
 		core::stringw KeyBuffer;
