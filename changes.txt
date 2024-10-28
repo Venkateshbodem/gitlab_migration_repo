@@ -1,6 +1,7 @@
 --------------------------
 Changes in 1.9 (not yet released)
 
+- Add IGUIContextMenu::setCloseOnCheck to control behaviour when a checkable item is clicked
 - IGUIListBox::setItemHeight now resets to automatic height with value 0. Also value is now serialized.
 - Several IMeshManipulator functions allow now using const IMesh* instead of insisting on non-const pointer
 - SpinBoxes can now also be created without buttons
