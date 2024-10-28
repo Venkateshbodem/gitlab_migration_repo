@@ -51,7 +51,7 @@ namespace gui
 		//! returns amount of list items
 		virtual u32 getItemCount() const = 0;
 
-		//! returns string of a list item. the may id be a value from 0 to itemCount-1
+		//! returns string for a list item. The id may be a value from 0 to itemCount-1
 		virtual const wchar_t* getListItem(u32 id) const = 0;
 
 		//! adds an list item with an icon
@@ -111,7 +111,7 @@ namespace gui
 		//! clear all item colors at index
 		virtual void clearItemOverrideColor(u32 index) = 0;
 
-		//! clear item color at index for given colortype
+		//! clear item color at index for given color type
 		virtual void clearItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType) = 0;
 
 		//! has the item at index its color overwritten?
